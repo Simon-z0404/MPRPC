@@ -1,0 +1,16 @@
+syntax = "proto3"; // 声明proto的版本
+
+package fixbug; // 声明了代码所在的包
+
+// 定义登录请求消息类型
+message LoginRequest{
+    bytes name = 1;
+    bytes pwd = 2;
+}
+
+// 定义登录响应消息类型
+message LoginRespone{
+    int32 errcode = 1;
+    bytes errmsg = 2;
+    bool success = 3;
+}

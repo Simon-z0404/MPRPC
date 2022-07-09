@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package fixbug;
+
+message ResultCode {
+    int32 errcode = 1;
+    bytes errmsg = 2;
+}
+
+message Usr {
+    bytes name = 1;
+    int32 age = 2;
+    enum Sex {
+        men = 0; 
+        women = 1;
+    };
+    Sex sex = 3;
+}
+
+message getFriendListRespone {
+    ResultCode res = 1;
+    repeated Usr friend_list = 2;
+}
