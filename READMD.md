@@ -4,7 +4,7 @@
 
 ## [框架结构]
 
-![框架示意图](D:\C++实习秋招学习文件夹\示意图\MPRPC\MPRPC.JPG)
+![框架示意图](https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC.JPG)
 
 ## [功能描述]：
 本项目主要是基于muduo+protobuf+zookeeper的微服务RPC框架。服务方可以通过mprpc框架注册rpc节点发布服务。客户端可以通过zookeeper服务配置中心发现服务，并进行远程方法的调用。
