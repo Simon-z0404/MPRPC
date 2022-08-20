@@ -368,5 +368,3 @@ int main(int argc, char** argv) {
 而对于写日志的线程来说，需要用到C++11中的 `std::unique_lock<std::mutex> lock(mutex)`函数。 不用`lock_guard`的原因是`unique_lock`函数提供了锁的`lock`和`unlock`操作，而`lock_guard`没有。如果队列为空的话，我们就使用`m_condvariable.wait(lock)`把这个写日志的线程阻塞休眠，等到入队线程消息的到来。
 
 2. 我们把日志系统设置成为了单例的模式，因为写日志只需要一个专门的对象完成就可以了。在日志系统的构造函数中，首先会开启一个线程，这个线程会不断的Pop出消息，把日志信息写到磁盘IO中。
-=======
->>>>>>> 27fc816070053036db3c3d1833ae9b07c75c3f5c
