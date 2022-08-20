@@ -26,7 +26,7 @@
 
 
 
-![image-20220718165055903](README.assets\image-20220718165055903.png)
+![https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC_detail/image-20220718165055903.png)
 
 
 
@@ -221,7 +221,7 @@ int main(int argc, char** argv) {
 
 ## 三、框架类
 
-![image-20220717185501947](README.assets\image-20220717185501947.png)
+![image-20220717185501947](https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC_detail/image-20220717185501947.png)
 
 
 
@@ -233,7 +233,7 @@ int main(int argc, char** argv) {
 
 
 
-![image-20220717193751961](README.assets\image-20220717193751961.png)
+![image-20220717193751961](https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC_detail/image-20220717193751961.png)
 
 
 
@@ -310,7 +310,7 @@ int main(int argc, char** argv) {
 
 ### 3. mprpcchannel类
 
-![image-20220717215223324](README.assets\image-20220717215223324.png)
+![image-20220717215223324](https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC_detail/image-20220717215223324.png)
 
 
 
@@ -339,7 +339,7 @@ int main(int argc, char** argv) {
 
 
 
-![image-20220718142450686](README.assets\image-20220718142450686.png)
+![image-20220718142450686](https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC_detail/image-20220718142450686.png)
 
 在`Zookeeper`这个类中，把一些用户需要和`zookeeper`服务器交互的内容封装成了一个客户端的类。在封装的过程中，需要考虑三个功能：
 
@@ -359,7 +359,7 @@ int main(int argc, char** argv) {
 
 
 
-![image-20220718152552165](README.assets\image-20220718152552165.png)
+![image-20220718152552165](https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC_detail/image-20220718152552165.png)
 
 1. 我们首先设计了一个线程安全的队列。在入队的时候，需要用互斥锁来进行加锁。这把互斥锁使用了C++11中的
 
