@@ -58,6 +58,7 @@
         "complex": "cpp",
         "list": "cpp",
         "cinttypes": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "xstring": "cpp"
     }
 }

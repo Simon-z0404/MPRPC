@@ -7,6 +7,7 @@
 #include <functional>
 #include <google/protobuf/descriptor.h>
 #include <unordered_map>
+#include "lockqueue.h"
 
 // 框架提供的专门用于发布rpc服务的网络对象类
 class RpcProvider
@@ -28,6 +29,9 @@ private:
 
     // 已建立连接用户的读写回调函数
     void OnMessage(const muduo::net::TcpConnectionPtr&, muduo::net::Buffer*, muduo::Timestamp);
+
+    // 负责注册的子线程工作函数
+    void NotifyThread();
 
     // service服务类型信息
     struct ServiceInfo

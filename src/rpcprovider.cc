@@ -6,42 +6,67 @@
 
 // 框架提供给外部使用 可以发布RPC方法
 void RpcProvider::NotifyService(google::protobuf::Service *service) {
-    // 获取服务对象的描述信息
-    const google::protobuf::ServiceDescriptor* pserviceDesc = service->GetDescriptor();
-    // 获取服务的名字
-    std::string service_name = pserviceDesc->name();
-    // 获取服务方法的数量
-    int methodCnt = pserviceDesc->method_count();
+    this->m_newServiceQue.Push(service);
+}
 
-    // Test
-    // std::cout << "service name:" << service_name << std::endl;
-    // Log Test
-    LOG_INFO("service name:%s", service_name.c_str( ));
+void RpcProvider::NotifyThread() { 
+    // 把当前RPC节点上要发布的服务注册到ZK上 让RPC client可以在zk上发现rpc服务
+    ZkClient zkCli;
+    zkCli.Start();
 
-    ServiceInfo service_info;
+        // 读取配置文件的rpc信息
+    std::string ip = MprpcApplication::GetInstance().getConfig().Load("rpcserverip");
+    u_int16_t port = atoi(MprpcApplication::GetInstance().getConfig().Load("rpcserverport").c_str());
+    
+    while (true) {
+        google::protobuf::Service *service = m_newServiceQue.Pop();
 
-    for (int i = 0; i < methodCnt; ++i) {
-        // 获取服务对象指定下标的方法描述
-        const google::protobuf::MethodDescriptor* pmethodDesc = pserviceDesc->method(i);
-        std::string methodName = pmethodDesc->name();
-        service_info.m_methondMap.insert({methodName, pmethodDesc});
+        m_newServiceQue.Push(service);
+        // 获取服务对象的描述信息
+        const google::protobuf::ServiceDescriptor* pserviceDesc = service->GetDescriptor();
+        // 获取服务的名字
+        std::string service_name = pserviceDesc->name();
+        // 获取服务方法的数量
+        int methodCnt = pserviceDesc->method_count();
 
-        // // Test
-        // std::cout << "method name:" << methodName << std::endl;
-        // Log Test
-        // LOG_INFO("method name:%s", methodName.c_str());
-    }
-    service_info.m_service = service;
-    m_serviceMap.insert({service_name, service_info});
+        LOG_INFO("service name:%s", service_name.c_str( ));
 
+        ServiceInfo service_info;
+
+        for (int i = 0; i < methodCnt; ++i) {
+            // 获取服务对象指定下标的方法描述
+            const google::protobuf::MethodDescriptor* pmethodDesc = pserviceDesc->method(i);
+            std::string methodName = pmethodDesc->name();
+            service_info.m_methondMap.insert({methodName, pmethodDesc});
+        }
+        service_info.m_service = service;
+        m_serviceMap.insert({service_name, service_info});
+
+        // service_name 为永久性节点 methond name为临时性节点
+        for (auto &sp : m_serviceMap) {
+            // service name
+            std::string service_path = "/" + sp.first;
+            zkCli.Create(service_path.c_str(), nullptr, 0); // state为0 默认为临时性节点
+            for (auto &mp : sp.second.m_methondMap) {
+                std::string method_path = service_path + "/" + mp.first;
+                char method_path_data[128] = {0};
+                sprintf(method_path_data, "%s:%d", ip.c_str(), port);
+                zkCli.Create(method_path.c_str(), method_path_data, strlen(method_path_data), 
+                            ZOO_EPHEMERAL);
+            }
+        }
+    }   
 }
 
 // 启动一个RPC服务发布节点 开始提供RPC远程网络调用服务
 void RpcProvider::run() {
+    // 开启子线程从服务注册队列中获取需要注册的服务，注册在ZK上
+    std::thread Notify_Thread(std::bind(&RpcProvider::NotifyThread, this));
+    Notify_Thread.detach();
+    
     // 读取配置文件的rpc信息
     std::string ip = MprpcApplication::GetInstance().getConfig().Load("rpcserverip");
-    u_int16_t port = atoi(MprpcApplication::GetInstance().getConfig().Load("rpcserverport").c_str());
-        
+    u_int16_t port = atoi(MprpcApplication::GetInstance().getConfig().Load("rpcserverport").c_str()); 
     muduo::net::InetAddress address(ip, port);
 
     // 创建TCP对象
@@ -52,30 +77,7 @@ void RpcProvider::run() {
         std::placeholders::_2, std::placeholders::_3));
     
     // 设置muduo库的线程数量
-    server.setThreadNum(4);
-
-    // 把当前RPC节点上要发布的服务注册到ZK上 让RPC client可以在zk上发现rpc服务
-    ZkClient zkCli;
-    zkCli.Start();
-    // service_name 为永久性节点 methond name为临时性节点
-    for (auto &sp : m_serviceMap) {
-        // service name
-        std::string service_path = "/" + sp.first;
-        zkCli.Create(service_path.c_str(), nullptr, 0); // state为0 默认为临时性节点
-        for (auto &mp : sp.second.m_methondMap) {
-            std::string method_path = service_path + "/" + mp.first;
-            char method_path_data[128] = {0};
-            sprintf(method_path_data, "%s:%d", ip.c_str(), port);
-            zkCli.Create(method_path.c_str(), method_path_data, strlen(method_path_data), 
-                        ZOO_EPHEMERAL);
-        }
-    }
- 
-    // 打印
-    std::cout << "Rpcserver start at ip:" << ip << " port:" << port << std::endl;
-    // Log 
-    LOG_INFO("Rpcserver start at ip:%s\t port:%d", ip.c_str(), port);
-
+    server.setThreadNum(3);
     // 启动网络服务
     server.start();
     m_eventLoop.loop();
