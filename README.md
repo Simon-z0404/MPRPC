@@ -26,7 +26,7 @@
 
 
 
-![https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC_detail/image-20220718165055903.png)
+![](https://github.com/Simon-z0404/ImageRepository/blob/main/MPRPC_detail/image-20220718165055903.png)
 
 
 
